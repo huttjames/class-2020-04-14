@@ -37,11 +37,27 @@ The data has been taken from the National Election Survey. Note that both ideolo
 
 1. Explore the data and see the variables for yourself. See if anything looks strange in the summary.
 
+```{r q1, echo = FALSE}
+
+nes %>% skim()
+
+```
+
+
 2. Create a scatterplot of our outcome variable `dvote` and a continuous predictor `ideology`. 
+
+```{r q2, echo=FALSE}
+
+ggplot(nes, aes(ideology, dvote)) + geom_point() + geom_jitter(alpha = 0.2, height = 0.1) + geom_smooth(method = "lm")
+
+```
+
 
 3. You might notice `geom_point()` doesn't give an intuitive graph since the points are so distinct. Try `geom_jitter()` instead. Use the arguments `alpha` and `height` to improve your plot.
 
 4. Draw a regression line through the data using `geom_smooth()`.
+
+
 
 5. Discuss whether a linear regression is appropriate for this. Is there a possibility of model predicting greater than 1 or less than 0 probability for `dvote`?
 
@@ -70,6 +86,13 @@ With dependent variables, like `dvote`, which are 0/1, the linear regression has
 1. Interpret the `estimate` column from the results. Use the [divide-by-four rule](https://davidkane9.github.io/PPBDS/13-classification.html#one-categorical-explanatory-variable).
 1. Provide a Bayesian and a Frequentist interpretation of the confidence intervals for the estimate of the coefficient for `income`.
 
+```{r q3, echo=FALSE}
+
+model_1 <- glm(dvote ~ gender + income, family = "binomial", data = nes)
+
+tidy(model_1, conf.int = TRUE)
+
+```
 
 
 
@@ -83,6 +106,16 @@ What does the `.fitted` column means?
 
 Why does `.fitted` have the same value for every male with income = 3? (First, show that this is in fact true. Then explain why?)
 
+```{r q4, echo=FALSE}
+
+model_1 %>%
+  augment(type.predict = "response",
+          type.residuals = "response") %>%
+  mutate(conf.low = .fitted - 2 * .se.fit,
+         conf.high = .fitted + 2 * .se.fit) %>%
+  select(dvote, gender, income, .fitted, conf.low, conf.high, .resid)
+
+```
 
 
 
